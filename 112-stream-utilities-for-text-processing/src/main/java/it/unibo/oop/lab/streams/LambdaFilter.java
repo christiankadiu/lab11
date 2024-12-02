@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -46,31 +48,11 @@ public final class LambdaFilter extends JFrame {
                 return s.toLowerCase();
             }
         }),
-        COUNT("count chars", new Function<>(){
-            @Override
-            public String apply(String s){
-                return Integer.toString(s.length());
-            }
-        }),
-        COUNTLINES("count lines", new Function<>(){
-            public String apply(String s){
-                Stream<String> lines = s.lines();
-                return Long.toString(lines.count());
-            }
-        }),
-        ALFABET("alfabeticdal order", new Function<>(){
-            @Override
-            public String apply(String s){
-                
-            }
-        }),
-        COUNTEACHWORD("count each word", new Function<>(){
-            @Override
-            public String apply(String s){
-                
-            }
-        });
-
+        COUNT("count chars", s -> Long.toString(s.chars().count())),
+        COUNTLINES("count lines", s -> Long.toString(s.lines().count())),
+        //GROSSO problema che confrontare se il carattere e uguale a 32 non e efficiente perche se aggiungo uno spazio finale alla frase mi conta una parola in piu o se parto con 
+        //uno spazio me la conta con una parola, in generale ogni volta che metto uno spazio e una parola in piu e questo non e efficiente 
+        COUNTEACHWORD("count each word", s -> Long.toString(s.chars().filter(x -> x == 32).count()));
 
         private final String commandName;
         private final Function<String, String> fun;
