@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -38,7 +39,38 @@ public final class LambdaFilter extends JFrame {
         /**
          * Commands.
          */
-        IDENTITY("No modifications", Function.identity());
+        IDENTITY("No modifications", Function.identity()),
+        TOLOWER("to lower case", new Function<>(){
+            @Override
+            public String apply(String s){
+                return s.toLowerCase();
+            }
+        }),
+        COUNT("count chars", new Function<>(){
+            @Override
+            public String apply(String s){
+                return Integer.toString(s.length());
+            }
+        }),
+        COUNTLINES("count lines", new Function<>(){
+            public String apply(String s){
+                Stream<String> lines = s.lines();
+                return Long.toString(lines.count());
+            }
+        }),
+        ALFABET("alfabeticdal order", new Function<>(){
+            @Override
+            public String apply(String s){
+                
+            }
+        }),
+        COUNTEACHWORD("count each word", new Function<>(){
+            @Override
+            public String apply(String s){
+                
+            }
+        });
+
 
         private final String commandName;
         private final Function<String, String> fun;
@@ -56,7 +88,11 @@ public final class LambdaFilter extends JFrame {
         public String translate(final String s) {
             return fun.apply(s);
         }
+
+
     }
+
+
 
     private LambdaFilter() {
         super("Lambda filter GUI");
