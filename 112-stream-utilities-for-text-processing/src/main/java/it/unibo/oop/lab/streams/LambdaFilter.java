@@ -6,10 +6,13 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -30,7 +33,8 @@ import javax.swing.JTextArea;
  *
  * 4) List all the words in alphabetical order
  * 
- * 5) Write the count for each word, e.g. "word word pippo" should output "pippo -> 1 word -> 2"
+ * 5) Write the count for each word, e.g. "word word pippo" should output "pippo
+ * -> 1 word -> 2"
  *
  */
 public final class LambdaFilter extends JFrame {
@@ -42,17 +46,26 @@ public final class LambdaFilter extends JFrame {
          * Commands.
          */
         IDENTITY("No modifications", Function.identity()),
-        TOLOWER("to lower case", new Function<>(){
-            @Override
-            public String apply(String s){
-                return s.toLowerCase();
-            }
-        }),
+        TOLOWER("to lower case", String::toLowerCase),
         COUNT("count chars", s -> Long.toString(s.chars().count())),
         COUNTLINES("count lines", s -> Long.toString(s.lines().count())),
-        //GROSSO problema che confrontare se il carattere e uguale a 32 non e efficiente perche se aggiungo uno spazio finale alla frase mi conta una parola in piu o se parto con 
-        //uno spazio me la conta con una parola, in generale ogni volta che metto uno spazio e una parola in piu e questo non e efficiente 
-        COUNTEACHWORD("count each word", s -> Long.toString(s.chars().filter(x -> x == 32).count()));
+        ALFABETICAL("alfabetical order of words", new Function<>() {
+            @Override
+            public String apply(final String s) {
+                final Set<String> set = new TreeSet<>();
+                final StringTokenizer st = new StringTokenizer(s);
+                while (st.hasMoreTokens()) {
+                    set.add(st.nextToken());
+                }
+                return String.join(" ", set);
+            }
+        }),
+        COUNTEACHWORD("count each word", s -> {
+            final Map<String, Long> mappa = Stream.of(s.split(" "))
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            return mappa.entrySet().stream().map(e -> e.getKey() + " -> " + e.getValue())
+                    .collect(Collectors.joining("\n"));
+        });
 
         private final String commandName;
         private final Function<String, String> fun;
@@ -70,15 +83,11 @@ public final class LambdaFilter extends JFrame {
         public String translate(final String s) {
             return fun.apply(s);
         }
-
-
     }
-
-
 
     private LambdaFilter() {
         super("Lambda filter GUI");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // NOPMD
         final JPanel panel1 = new JPanel();
         final LayoutManager layout = new BorderLayout();
         panel1.setLayout(layout);
