@@ -47,9 +47,8 @@ public final class ConcurrentGUI extends JFrame {
          */
         final Agent agent = new Agent();
         new Thread(agent).start();
-        /*
-         * Register a listener that stops it
-         */
+        up.addActionListener((e) -> agent.setDirUp());
+        down.addActionListener((e) -> agent.setDirDown());
         stop.addActionListener((e) -> agent.stopCounting());
     }
 
@@ -79,7 +78,11 @@ public final class ConcurrentGUI extends JFrame {
                     // The EDT doesn't access `counter` anymore, it doesn't need to be volatile
                     final var nextText = Integer.toString(this.counter);
                     SwingUtilities.invokeAndWait(() -> ConcurrentGUI.this.display.setText(nextText));
-                    this.counter++;
+                    if (dir) {
+                        this.counter++;
+                    } else {
+                        this.counter--;
+                    }
                     Thread.sleep(100);
                 } catch (InvocationTargetException | InterruptedException ex) {
                     /*
@@ -89,6 +92,14 @@ public final class ConcurrentGUI extends JFrame {
                     ex.printStackTrace();
                 }
             }
+        }
+
+        public void setDirUp() {
+            this.dir = true;
+        }
+
+        public void setDirDown() {
+            this.dir = false;
         }
 
         /**
